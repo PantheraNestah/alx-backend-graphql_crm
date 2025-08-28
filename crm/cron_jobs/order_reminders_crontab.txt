@@ -1,1 +1,1 @@
-0 8 * * * /usr/bin/python3 /path/to/alx-backend-graphql_crm/crm/cron_jobs/send_order_reminders.py
+0 8 * * * /usr/bin/python3 /home/nesta/Documents/programming_playground/Alx_PD_BE/alx-backend-graphql_crm/crm/cron_jobs/send_order_reminders.py
