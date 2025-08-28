@@ -42,8 +42,16 @@ INSTALLED_APPS = [
     "django_filters",
     # Local apps
     "crm",
+    "django_crontab",
     
 ]
+
+CRONJOBS = [
+    # ('schedule', 'path.to.cron.function', '>> /path/to/logfile.log')
+    # The following line schedules our heartbeat function to run every 5 minutes.
+    ('*/5 * * * *', 'crm.cron.log_crm_heartbeat', '>> /tmp/crm_heartbeat.log'),
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
