@@ -27,6 +27,9 @@ customers_to_delete.delete()
 print(f'{deletion_count} inactive customers deleted.')
 "
 
+#first activate python venv
+source /home/nesta/Documents/programming_playground/pyvenv/bin/activate
+
 # Execute the command using manage.py shell and capture the output
 DELETED_COUNT_MSG=$(python manage.py shell -c "$PYTHON_COMMAND")
 
