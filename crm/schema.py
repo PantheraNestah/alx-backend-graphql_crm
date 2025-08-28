@@ -2,6 +2,7 @@ import re
 import graphene
 from graphene_django import DjangoObjectType
 from django.db import transaction
+from django.db.models import F
 from django.core.exceptions import ValidationError
 from .models import Customer, Product, Order
 
@@ -252,3 +253,36 @@ class Mutation(graphene.ObjectType):
     bulk_create_customers = BulkCreateCustomers.Field()
     create_product = CreateProduct.Field()
     create_order = CreateOrder.Field()
+
+class UpdateLowStockProducts(graphene.Mutation):
+    """
+    Finds all products with stock less than 10, increments their stock
+    by 10, and returns the list of updated products.
+    """
+    class Arguments:
+        # No arguments needed as the logic is predefined
+        pass
+
+    # Define the output fields of the mutation
+    updated_products = graphene.List(ProductType)
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info):
+        # Find products with stock less than 10
+        low_stock_products = Product.objects.filter(stock__lt=10)
+        
+        if not low_stock_products.exists():
+            return UpdateLowStockProducts(updated_products=[], message="No low-stock products found to update.")
+
+        # Atomically increment the stock by 10 for all found products
+        # Using F() prevents race conditions and is more efficient.
+        low_stock_products.update(stock=F('stock') + 10)
+
+        # Refresh the queryset from the database to get the new stock values
+        updated_products_qs = Product.objects.filter(pk__in=low_stock_products.values_list('pk', flat=True))
+        
+        count = updated_products_qs.count()
+        message = f"Successfully restocked {count} low-stock product(s)."
+
+        return UpdateLowStockProducts(updated_products=list(updated_products_qs), message=message)
