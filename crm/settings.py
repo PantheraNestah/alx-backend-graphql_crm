@@ -49,7 +49,9 @@ INSTALLED_APPS = [
 CRONJOBS = [
     # ('schedule', 'path.to.cron.function', '>> /path/to/logfile.log')
     # The following line schedules our heartbeat function to run every 5 minutes.
-    ('*/5 * * * *', 'crm.cron.log_crm_heartbeat', '>> /tmp/crm_heartbeat.log'),
+    ('*/5 * * * *', 'crm.cron.log_crm_heartbeat', '>> /tmp/crm_heartbeat.txt'),
+    # Runs the low stock update every 12 hours (at 00:00 and 12:00)
+    ('0 */12 * * *', 'crm.cron.update_low_stock', '>> /tmp/low_stock_updates_log.txt'),
 ]
 
 
