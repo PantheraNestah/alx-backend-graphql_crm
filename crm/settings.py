@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # Local apps
     "crm",
     "django_crontab",
+    'django_celery_beat',
     
 ]
 
@@ -139,3 +140,29 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CELERY SETTINGS
+# ------------------------------------------------------------------------------
+# Using Redis as the message broker and result backend.
+# The URL format is redis://host:port/db_number
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC' # It's good practice to use UTC.
+
+# CELERY BEAT SCHEDULE
+# ------------------------------------------------------------------------------
+# This dictionary defines all the periodic tasks.
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    # A unique name for the task scheduler
+    'generate-weekly-crm-report': {
+        # The path to the task function
+        'task': 'crm.tasks.generate_crm_report',
+        # The schedule. This runs every Monday at 6:00 AM.
+        'schedule': crontab(day_of_week='mon', hour=6, minute=0),
+    },
+}
