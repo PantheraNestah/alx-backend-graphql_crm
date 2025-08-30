@@ -46,6 +46,10 @@ class Query(graphene.ObjectType):
     all_products = DjangoFilterConnectionField(ProductType, filterset_class=ProductFilter, order_by=graphene.List(of_type=graphene.String))
     all_orders = DjangoFilterConnectionField(OrderType, filterset_class=OrderFilter, order_by=graphene.List(of_type=graphene.String))
 
+    total_customers = graphene.Int()
+    total_orders = graphene.Int()
+    total_revenue = graphene.Float()
+
     def resolve_all_customers(self, info, **kwargs):
         qs = Customer.objects.all()
         order_by = kwargs.get("order_by")
@@ -66,6 +70,20 @@ class Query(graphene.ObjectType):
         if order_by:
             qs = qs.order_by(*order_by)
         return qs
+        
+    def resolve_total_customers(root, info):
+        # Returns the total count of customers.
+        return Customer.objects.count()
+
+    def resolve_total_orders(root, info):
+        # Returns the total count of orders.
+        return Order.objects.count()
+
+    def resolve_total_revenue(root, info):
+        # Calculates the sum of 'total_amount' across all orders.
+        # The result might be None if there are no orders, so we default to 0.
+        aggregation = Order.objects.aggregate(total_revenue=Sum('total_amount'))
+        return aggregation['total_revenue'] or 0.0
 
 # -------------------------
 # Object Types
